@@ -1,0 +1,38 @@
+pragma circom 2.1.5;
+
+include "comparators.circom";
+include "poseidon.circom";
+include "merkleProof.circom";
+
+#[instance]
+{
+    name: vote,
+    publicInputs: [votingID, nullifier],
+}
+
+#[entrypoint]
+template vote() {
+    signal input votingID;
+    signal input lemma[10 + 2];
+    signal input path[10];
+    signal input nullifier;
+
+    component merkleProof = MerkleProof(10);
+    component poseidon = Poseidon(2);
+
+    merkleProof.lemma <== lemma;
+    merkleProof.path <== path;
+
+    poseidon.inputs[0] <== votingID;
+    poseidon.inputs[1] <== lemma[0];
+
+    poseidon.out === nullifier;
+}
+
+template AND() {
+    signal input a;
+    signal input b;
+    signal output out;
+
+    out <== a * b;
+}
